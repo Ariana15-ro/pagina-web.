@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Streaming</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: linear-gradient(135deg, #232526 0%, #414345 100%);
+            color: #fff;
+            margin: 0;
+            min-height: 100vh;
+            /* Añade animación de fondo */
+            animation: bgMove 12s ease-in-out infinite alternate;
+            font-size: 0.85em;
+        }
+        @keyframes bgMove {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+        h1 {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 1.4em;
+            letter-spacing: 2px;
+            color: #ff9800;
+            text-shadow: 2px 2px 8px #0008;
+        }
+        p {
+            text-align: center;
+            font-size: 1em;
+            margin-bottom: 18px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 30px auto;
+            background: rgba(34, 40, 49, 0.95);
+            border-radius: 18px;
+            border: 2px solid #ff9800;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37), 0 0 0 8px #ff980033;
+            padding: 32px 24px 24px 24px;
+        }
+        label {
+            font-size: 0.95em;
+            color: #ff9800;
+        }
+        select {
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.95em;
+            margin-left: 6px;
+            border: none;
+            background: #232526;
+            color: #fff;
+            outline: none;
+            box-shadow: 0 2px 8px #0002;
+            transition: background 0.2s;
+        }
+        select:focus {
+            background: #ff9800;
+            color: #232526;
+        }
+        /* Botones principales */
+        #toggleTheme, #randomAnime, #resetLikes, #popupBtn, #likeBtn, #commentBtn, #shareBtn, #sendComment, #surpriseBtn {
+            background: linear-gradient(90deg, #ff9800 60%, #ffb300 100%);
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 0.95em;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 4px 2px 4px 0;
+            box-shadow: 0 2px 8px #ff980055, 0 0.5px 2px #0002;
+            letter-spacing: 1px;
+            transition: background 0.2s, color 0.2s, transform 0.1s;
+        }
+        #toggleTheme:hover, #randomAnime:hover, #resetLikes:hover, #popupBtn:hover, #likeBtn:hover, #commentBtn:hover, #shareBtn:hover, #sendComment:hover {
+            background: linear-gradient(90deg, #ffb300 60%, #ff9800 100%);
+            color: #232526;
+            transform: translateY(-2px) scale(1.04);
+            box-shadow: 0 4px 16px #ffb30099;
+        }
+        #likeBtn {
+            background: linear-gradient(90deg, #ff9800 60%, #ffb300 100%);
+        }
+        #likeBtn.liked {
+            background: linear-gradient(90deg, #43e97b 60%, #38f9d7 100%);
+            color: #232526;
+            box-shadow: 0 2px 8px #43e97b99;
+        }
+        #animeInfo {
+            width: 97%;
+            margin-top: 18px;
+            background: rgba(255, 255, 255, 0.13);
+            border-radius: 10px;
+            padding: 14px 8px 10px 8px;
+            box-shadow: 0 8px 32px #ff980055, 0 1.5px 8px #0002;
+            border: 2px solid #ff9800;
+            transition: background 0.3s;
+        }
+        #animeTitle {
+            color: #ff9800;
+            margin-bottom: 8px;
+            font-size: 1em;
+            text-shadow: 2px 2px 8px #0008;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            font-weight: 700;
+            text-align: center;
+            border-radius: 8px;
+        }
+        #animeDesc {
+            margin: 10px 0 6px 0;
+            font-size: 0.95em;
+            color: #ffd180;
+            font-style: italic;
+            text-align: center;
+        }
+        #animeflvLink {
+            display: inline-block;
+            margin-top: 6px;
+            color: #03a9f4;
+            background: #fff1;
+            padding: 5px 10px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s, color 0.2s;
+            box-shadow: 0 2px 8px #03a9f455;
+            text-align: center;
+        }
+        #animeflvLink:hover {
+            background: #03a9f4;
+            color: #fff;
+            box-shadow: 0 4px 16px #03a9f4aa;
+        }
+        #videoWrapper {
+            width: 100%;
+        }
+        #animeVideo {
+            width: 100%;
+            height: 180px;
+            border-radius: 8px;
+        }
+        /* Animaciones */
+        .fade-in {
+            animation: fadeIn 0.7s;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        .comment-fade-in {
+            animation: commentFadeIn 0.6s;
+        }
+        @keyframes commentFadeIn {
+            from { opacity: 0; transform: translateY(10px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+        /* Scrollbar personalizado para comentarios */
+        #commentsList::-webkit-scrollbar {
+            width: 8px;
+        }
+        #commentsList::-webkit-scrollbar-thumb {
+            background: #ff9800;
+            border-radius: 6px;
+        }
+        /* Comentarios */
+        #commentsSection {
+            width: 100%;
+            background: rgba(255,255,255,0.07);
+            border-radius: 8px;
+            box-shadow: 0 2px 12px #0002;
+            padding: 10px 6px 8px 6px;
+            margin-top: 10px;
+            border: 2px solid #03a9f4;
+        }
+        #commentsList {
+            width: 100%;
+            font-size: 0.95em;
+        }
+        #commentsList li {
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-size: 0.95em;
+            margin: 2px 0;
+            background: linear-gradient(90deg, #232526cc 60%, #414345cc 100%);
+            color: #ffd180;
+            box-shadow: 0 1px 4px #0002;
+            border-left: 4px solid #ff9800;
+        }
+        #commentInput {
+            width: 60%;
+            padding: 5px;
+            border-radius: 6px;
+            font-size: 0.95em;
+            margin-top: 4px;
+            border: 1.5px solid #03a9f4;
+            background: #232526;
+            color: #fff;
+            transition: border 0.2s;
+        }
+        #commentInput:focus {
+            border: 2px solid #ff9800;
+        }
+        /* Responsive */
+        @media (max-width: 400px) {
+            .container { max-width: 99vw; }
+            #animeVideo { height: 70px; }
+            #animeTitle { font-size: 0.9em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Anime Streaming</h1>
+        <p>Bienvenido a tu portal para ver anime en línea. Explora y disfruta de tus series favoritas.</p>
+        <label for="animeSelect"><strong>Selecciona un anime:</strong></label>
+        <select id="animeSelect">
+            <option value="naruto">Naruto - Episodio 1</option>
+            <option value="aot">Attack on Titan - Episodio 1</option>
+            <option value="onepiece">One Piece - Episodio 1</option>
+            <option value="demon">Demon Slayer - Episodio 1</option>
+            <option value="jujutsu">Jujutsu Kaisen - Episodio 1</option>
+            <option value="bleach">Bleach - Episodio 1</option>
+            <option value="dragonball">Dragon Ball Z - Episodio 1</option>
+            <option value="spyxfamily">Spy x Family - Episodio 1</option>
+            <option value="chainsaw">Chainsaw Man - Episodio 1</option>
+            <option value="tokyoRevengers">Tokyo Revengers - Episodio 1</option>
+            <option value="bokuNoHero">Boku no Hero Academia - Episodio 1</option>
+            <option value="fullmetal">Fullmetal Alchemist: Brotherhood - Episodio 1</option>        
+            <option value="sao">Sword Art Online - Episodio 1</option>
+        </select>
+        <button id="toggleTheme" style="margin-top:10px;">Modo claro</button>
+        <button id="randomAnime" style="margin-top:10px;">Anime Aleatorio</button>
+        <button id="resetLikes" style="margin-top:10px;">Reiniciar Likes</button>
+        <button id="scrollTopBtn" style="margin-top:10px;display:none;position:absolute;bottom:10px;right:10px;z-index:1000;">⬆️ Arriba</button>
+        <button id="surpriseBtn" style="margin-top:10px;">🎉 Sorpresa</button>
+        <!-- Mueve #animeInfo aquí dentro del .container -->
+        <div id="animeInfo" class="fade-in">
+            <h2 id="animeTitle">Naruto - Episodio 1</h2>
+            <div id="videoWrapper" style="position:relative;">
+                <div id="loadingMsg" style="display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:#222c;z-index:2;display:flex;align-items:center;justify-content:center;font-size:1.5em;color:#ff9800;">Cargando pagina..</div>
+                <iframe id="animeVideo" src="https://www3.animeflv.net/anime/naruto" title="Naruto Episodio 1" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <p id="animeDesc">Naruto es un joven ninja que busca convertirse en el Hokage de su aldea.</p>
+            <a id="animeflvLink" href="https://www3.animeflv.net/anime/naruto" target="_blank">Ver en AnimeFLV</a>
+            <button id="popupBtn" style="margin-top:10px;">Ver en ventana emergente</button>
+            <button id="likeBtn" style="margin-top:10px;">👍 Me gusta</button>
+            <span id="likeCount" style="margin-left:4px;color:#ff9800;font-weight:bold;font-size:1em;">0</span>
+            <button id="commentBtn" style="margin-top:10px;">💬 Comentar</button>
+            <button id="shareBtn" style="margin-top:10px;">🔗 Compartir</button>
+            <button id="fullscreenBtn" style="margin-top:10px;">Pantalla completa</button>
+            <button id="randomColorBtn" style="margin-top:10px;">🎨 Fondo Aleatorio</button>
+        </div>
+        <div id="commentsSection" style="margin-top:10px;display:none;">
+            <h3 style="color:#ff9800;">Comentarios</h3>
+            <ul id="commentsList" style="list-style:none;padding:0;max-height:120px;overflow-y:auto;"></ul>
+            <div style="display:flex;align-items:center;">
+                <input id="commentInput" type="text" placeholder="Escribe un comentario..." style="padding:6px;border-radius:6px;border:1px solid #ccc;">
+                <button id="sendComment" style="margin-left:8px;">Enviar</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const animeData = {
+            naruto: {
+                title: "Naruto - Episodio 1",
+                src: "https://www3.animeflv.net/anime/naruto",
+                desc: "Naruto es un joven ninja que busca convertirse en el Hokage de su aldea.",
+                animeflv: "https://www3.animeflv.net/anime/naruto"
+            },
+            aot: {
+                title: "Attack on Titan - Episodio 1",
+                src: "https://www3.animeflv.net/anime/shingeki-no-kyojin",
+                desc: "La humanidad lucha por sobrevivir contra los titanes gigantes.",
+                animeflv: "https://www3.animeflv.net/anime/shingeki-no-kyojin"
+            },
+            onepiece: {
+                title: "One Piece - Episodio 1",
+                src: "https://www3.animeflv.net/anime/one-piece",
+                desc: "Luffy y su tripulación buscan el legendario tesoro One Piece.",
+                animeflv: "https://www3.animeflv.net/anime/one-piece"
+            },
+            demon: {
+                title: "Demon Slayer - Episodio 1",
+                src: "https://www3.animeflv.net/anime/kimetsu-no-yaiba",
+                desc: "Tanjiro lucha contra demonios para salvar a su hermana.",
+                animeflv: "https://www3.animeflv.net/anime/kimetsu-no-yaiba"
+            },
+            jujutsu: {
+                title: "Jujutsu Kaisen - Episodio 1",
+                src: "https://www3.animeflv.net/anime/jujutsu-kaisen-tv",
+                desc: "Yuji Itadori se une a una escuela de hechicería para combatir maldiciones.",
+                animeflv: "https://www3.animeflv.net/anime/jujutsu-kaisen-tv"
+            },
+            bleach: {
+                title: "Bleach - Episodio 1",
+                src: "https://www3.animeflv.net/anime/bleach",
+                desc: "Ichigo Kurosaki obtiene poderes de Shinigami y protege a los vivos de los espíritus malignos.",
+                animeflv: "https://www3.animeflv.net/anime/bleach"
+            },
+            dragonball: {
+                title: "Dragon Ball Z - Episodio 1",
+                src: "https://www3.animeflv.net/anime/dragon-ball-z",
+                desc: "Goku descubre su origen y enfrenta nuevos enemigos poderosos.",
+                animeflv: "https://www3.animeflv.net/anime/dragon-ball-z"
+            },
+            spyxfamily: {
+                title: "Spy x Family - Episodio 1",
+                src: "https://www3.animeflv.net/anime/spy-x-family",
+                desc: "Un espía debe formar una familia falsa para cumplir una misión secreta.",
+                animeflv: "https://www3.animeflv.net/anime/spy-x-family"
+            },
+            chainsawman: {
+                title: "Chainsaw Man - Episodio 1",
+                src: "https://www3.animeflv.net/anime/chainsaw-man",
+                desc: "Denji, un joven cazador de demonios, obtiene poderes de motosierra tras fusionarse con su demonio mascota.",
+                animeflv: "https://www3.animeflv.net/anime/chainsaw-man"
+            },
+            tokyoRevengers: {
+                title: "Tokyo Revengers - Episodio 1",
+                src: "https://www3.animeflv.net/anime/tokyo-revengers",
+                desc: "Takemichi viaja al pasado para salvar a su exnovia y cambiar el destino de sus amigos.",
+                animeflv: "https://www3.animeflv.net/anime/tokyo-revengers"
+            },
+            bokuNoHero: {
+                title: "Boku no Hero Academia - Episodio 1",
+                src: "https://www3.animeflv.net/anime/boku-no-hero-academia",
+                desc: "Izuku Midoriya sueña con convertirse en héroe en un mundo donde casi todos tienen superpoderes.",
+                animeflv: "https://www3.animeflv.net/anime/boku-no-hero-academia"
+            },
+            fullmetal: {
+                title: "Fullmetal Alchemist: Brotherhood - Episodio 1",
+                src: "https://www3.animeflv.net/anime/fullmetal-alchemist-brotherhood",
+                desc: "Los hermanos Elric buscan la piedra filosofal tras un fallido intento de alquimia prohibida.",
+                animeflv: "https://www3.animeflv.net/anime/fullmetal-alchemist-brotherhood"
+            },
+            sao: {
+                title: "Sword Art Online - Episodio 1",
+                src: "https://www3.animeflv.net/anime/sword-art-online",
+                desc: "Jugadores quedan atrapados en un videojuego de realidad virtual donde morir en el juego significa morir en la vida real.",
+                animeflv: "https://www3.animeflv.net/anime/sword-art-online"
+            },
+        };
+        const animeSelect = document.getElementById('animeSelect');
+        const animeTitle = document.getElementById('animeTitle');
+        const animeVideo = document.getElementById('animeVideo');
+        const animeDesc = document.getElementById('animeDesc');
+        const animeflvLink = document.getElementById('animeflvLink');
+        const animeInfo = document.getElementById('animeInfo');
+        const loadingMsg = document.getElementById('loadingMsg');
+        const popupBtn = document.getElementById('popupBtn');
+        const toggleTheme = document.getElementById('toggleTheme');
+        const videoWrapper = document.getElementById('videoWrapper');
+        const randomAnime = document.getElementById('randomAnime');
+        const likeBtn = document.getElementById('likeBtn');
+        const likeCount = document.getElementById('likeCount');
+        const resetLikes = document.getElementById('resetLikes');
+        const commentBtn = document.getElementById('commentBtn');
+        const commentsSection = document.getElementById('commentsSection');
+        const commentsList = document.getElementById('commentsList');
+        const commentInput = document.getElementById('commentInput');
+        const sendComment = document.getElementById('sendComment');
+        const shareBtn = document.getElementById('shareBtn');
+        const scrollTopBtn = document.getElementById('scrollTopBtn');
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const surpriseBtn = document.getElementById('surpriseBtn');
+        const randomColorBtn = document.getElementById('randomColorBtn');
+
+        let likes = {};
+        let comments = {};
+        let currentAnime = animeSelect.value;
+
+        function updateAnime(selected) {
+            animeTitle.textContent = animeData[selected].title;
+            animeDesc.textContent = animeData[selected].desc;
+            animeflvLink.href = animeData[selected].animeflv;
+            animeVideo.style.display = "none";
+            loadingMsg.style.display = "flex";
+            animeInfo.classList.remove('fade-in');
+            void animeInfo.offsetWidth;
+            animeInfo.classList.add('fade-in');
+            setTimeout(() => {
+                animeVideo.src = animeData[selected].src;
+                animeVideo.style.display = "";
+            }, 400);
+            likeCount.textContent = likes[selected] || 0;
+            renderComments(selected);
+            currentAnime = selected;
+        }
+
+        animeSelect.addEventListener('change', function() {
+            updateAnime(this.value);
+        });
+
+        animeVideo.addEventListener('load', function() {
+            loadingMsg.style.display = "none";
+        });
+
+        popupBtn.addEventListener('click', function() {
+            const selected = animeSelect.value;
+            window.open(animeData[selected].src, '_blank', 'width=900,height=600');
+        });
+
+        // Modo claro/oscuro
+        toggleTheme.addEventListener('click', function() {
+            const isDark = document.body.classList.toggle('light-mode');
+            if (isDark) {
+                document.body.style.background = 'linear-gradient(135deg, #fff 0%, #e0e0e0 100%)';
+                document.body.style.color = '#222';
+                animeInfo.style.background = 'rgba(0,0,0,0.05)';
+                toggleTheme.textContent = "Modo oscuro";
+            } else {
+                document.body.style.background = 'linear-gradient(135deg, #232526 0%, #414345 100%)';
+                document.body.style.color = '#fff';
+                animeInfo.style.background = 'rgba(255,255,255,0.05)';
+                toggleTheme.textContent = "Modo claro";
+            }
+        });
+
+        // Botón Anime Aleatorio
+        randomAnime.addEventListener('click', function() {
+            const keys = Object.keys(animeData);
+            let randomKey;
+            do {
+                randomKey = keys[Math.floor(Math.random() * keys.length)];
+            } while (randomKey === animeSelect.value && keys.length > 1);
+            animeSelect.value = randomKey;
+            updateAnime(randomKey);
+        });
+
+        // Botón Me gusta
+        likeBtn.addEventListener('click', function() {
+            likes[currentAnime] = (likes[currentAnime] || 0) + 1;
+            likeCount.textContent = likes[currentAnime];
+            likeBtn.classList.add('liked');
+            likeBtn.classList.add('fade-in');
+            // Confeti en la posición del botón
+            const rect = likeBtn.getBoundingClientRect();
+            confetti(rect.left + rect.width/2, rect.top + rect.height/2);
+            setTimeout(() => {
+                likeBtn.classList.remove('fade-in');
+                likeBtn.classList.remove('liked');
+            }, 700);
+        });
+
+        // Reiniciar likes
+        resetLikes.addEventListener('click', function() {
+            likes = {};
+            likeCount.textContent = 0;
+        });
+
+        // Mostrar/ocultar sección de comentarios
+        commentBtn.addEventListener('click', function() {
+            commentsSection.style.display = commentsSection.style.display === "none" ? "block" : "none";
+        });
+
+        // Enviar comentario
+        sendComment.addEventListener('click', function() {
+            const text = commentInput.value.trim();
+            if (text) {
+                if (!comments[currentAnime]) comments[currentAnime] = [];
+                comments[currentAnime].push(text);
+                renderComments(currentAnime, true);
+                commentInput.value = '';
+            }
+        });
+
+        // Mostrar comentarios
+        function renderComments(anime, animateLast=false) {
+            commentsList.innerHTML = '';
+            (comments[anime] || []).forEach((comment, idx, arr) => {
+                const li = document.createElement('li');
+                li.textContent = comment;
+                li.style.background = "#2228";
+                li.style.margin = "4px 0";
+                li.style.padding = "6px 10px";
+                li.style.borderRadius = "6px";
+                if (animateLast && idx === arr.length - 1) {
+                    li.classList.add('comment-fade-in');
+                }
+                commentsList.appendChild(li);
+            });
+        }
+
+        // Permitir enviar comentario con Enter
+        commentInput.addEventListener('keydown', function(e) {
+            if (e.key === "Enter") sendComment.click();
+        });
+
+        // Compartir anime (copiar enlace al portapapeles)
+        shareBtn.addEventListener('click', function() {
+            const url = animeflvLink.href;
+            navigator.clipboard.writeText(url).then(() => {
+                shareBtn.textContent = "¡Enlace copiado!";
+                setTimeout(() => { shareBtn.textContent = "🔗 Compartir"; }, 1200);
+            });
+        });
+
+        // Pantalla completa para el video
+        fullscreenBtn.addEventListener('click', function() {
+            const iframe = document.getElementById('animeVideo');
+            if (iframe.requestFullscreen) {
+                iframe.requestFullscreen();
+            } else if (iframe.mozRequestFullScreen) {
+                iframe.mozRequestFullScreen();
+            } else if (iframe.webkitRequestFullscreen) {
+                iframe.webkitRequestFullscreen();
+            } else if (iframe.msRequestFullscreen) {
+                iframe.msRequestFullscreen();
+            }
+        });
+
+        // Animación de confeti al dar like
+        function confetti(x, y) {
+            for (let i = 0; i < 20; i++) {
+                const conf = document.createElement('div');
+                conf.style.position = 'fixed';
+                conf.style.left = (x + Math.random() * 60 - 30) + 'px';
+                conf.style.top = (y + Math.random() * 20 - 10) + 'px';
+                conf.style.width = '8px';
+                conf.style.height = '8px';
+                conf.style.background = `hsl(${Math.random()*360},90%,60%)`;
+                conf.style.borderRadius = '50%';
+                conf.style.opacity = 0.8;
+                conf.style.pointerEvents = 'none';
+                conf.style.zIndex = 9999;
+                document.body.appendChild(conf);
+                setTimeout(() => {
+                    conf.style.transition = 'all 1s cubic-bezier(.17,.67,.83,.67)';
+                    conf.style.top = (y - 80 - Math.random()*40) + 'px';
+                    conf.style.opacity = 0;
+                }, 10);
+                setTimeout(() => conf.remove(), 1200);
+            }
+        }
+        likeBtn.addEventListener('click', function(e) {
+            likes[currentAnime] = (likes[currentAnime] || 0) + 1;
+            likeCount.textContent = likes[currentAnime];
+            likeBtn.classList.add('liked');
+            likeBtn.classList.add('fade-in');
+            // Confeti en la posición del botón
+            const rect = likeBtn.getBoundingClientRect();
+            confetti(rect.left + rect.width/2, rect.top + rect.height/2);
+            setTimeout(() => {
+                likeBtn.classList.remove('fade-in');
+                likeBtn.classList.remove('liked');
+            }, 700);
+        });
+
+        // Inicializar contador de likes y comentarios
+        likeCount.textContent = likes[currentAnime] || 0;
+        renderComments(currentAnime);
+
+        // Sorpresa: muestra un mensaje y animación divertida
+        surpriseBtn.addEventListener('click', function() {
+            const emojis = ['🎉', '✨', '🥳', '😺', '🍥', '🍙', '🔥', '💫', '🌸', '🦊', '👺', '🍡'];
+            const msg = document.createElement('div');
+            msg.textContent = "¡Sigue disfrutando del anime! " + emojis[Math.floor(Math.random()*emojis.length)];
+            msg.style.position = "fixed";
+            msg.style.top = "30%";
+            msg.style.left = "50%";
+            msg.style.transform = "translate(-50%, -50%)";
+            msg.style.background = "#ff9800";
+            msg.style.color = "#fff";
+            msg.style.fontSize = "2em";
+            msg.style.padding = "24px 40px";
+            msg.style.borderRadius = "18px";
+            msg.style.boxShadow = "0 8px 32px #0008";
+            msg.style.zIndex = 9999;
+            msg.style.opacity = 0;
+            msg.style.transition = "opacity 0.4s";
+            document.body.appendChild(msg);
+            setTimeout(() => { msg.style.opacity = 1; }, 50);
+            setTimeout(() => { msg.style.opacity = 0; }, 1800);
+            setTimeout(() => { msg.remove(); }, 2200);
+        });
+
+        // Fondo aleatorio animado
+        randomColorBtn.addEventListener('click', function() {
+            const colors = [
+                ['#232526', '#414345'],
+                ['#ff9800', '#ffb300'],
+                ['#43e97b', '#38f9d7'],
+                ['#03a9f4', '#00bcd4'],
+                ['#e53935', '#e35d5b'],
+                ['#8e2de2', '#4a00e0'],
+                ['#f7971e', '#ffd200'],
+                ['#f953c6', '#b91d73'],
+                ['#00c3ff', '#ffff1c'],
+                ['#fc466b', '#3f5efb'],
+                ['#11998e', '#38ef7d'],
+                ['#ee0979', '#ff6a00'],
+                ['#00b4db', '#0083b0'],
+                ['#f857a6', '#ff5858'],
+                ['#c471f5', '#fa71cd'],
+                ['#ff5f6d', '#ffc371'],
+                ['#00f2fe', '#4facfe'],
+                ['#f7971e', '#ffd200'],
+                ['#f953c6', '#b91d73'],
+                ['#a8ff78', '#78ffd6'],
+                ['#ffdde1', '#ee9ca7'],
+                ['#4158d0', '#c850c0'],
+                ['#0099f7', '#f11712'],
+                // nuevos colores
+                ['#ff9966', '#ff5e62'],
+                ['#00c6ff', '#0072ff'],
+                ['#f2709c', '#ff9472'],
+                ['#00b09b', '#96c93d'],
+                ['#fc00ff', '#00dbde'],
+                ['#f7971e', '#ffd200'],
+                ['#f953c6', '#b91d73'],
+                ['#e1eec3', '#f05053'],
+                ['#fceabb', '#f8b500'],
+                ['#43cea2', '#185a9d'],
+                ['#ffaf7b', '#d76d77'],
+                ['#ff6e7f', '#bfe9ff'],
+                ['#c2e59c', '#64b3f4'],
+                ['#de6161', '#2657eb'],
+                ['#eecda3', '#ef629f'],
+                ['#2193b0', '#6dd5ed'],
+                ['#ee9ca7', '#ffdde1'],
+                ['#42275a', '#734b6d'],
+                ['#bdc3c7', '#2c3e50'],
+                ['#fd746c', '#ff9068'],
+                ['#1d4350', '#a43931'],
+                ['#ffb347', '#ffcc33'],
+                ['#ffecd2', '#fcb69f'],
+                ['#f7971e', '#ffd200'],
+                ['#f953c6', '#b91d73']
+            ];
+            const pair = colors[Math.floor(Math.random()*colors.length)];
+            document.body.style.background = `linear-gradient(135deg, ${pair[0]} 0%, ${pair[1]} 100%)`;
+        });
+    </script>
+</body>
+</html>
